@@ -68,11 +68,7 @@ jobs:
 
       
 
-    - name: Install Anydesk
 
-      run: cmd /c C:\Users\Public\Desktop\any.exe any.exe /s
-
-      
 
     - name: TimeCount
 
