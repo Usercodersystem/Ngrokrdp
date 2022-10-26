@@ -1,0 +1,78 @@
+name: AWS
+
+on: workflow_dispatch
+
+jobs:
+
+  build:
+
+    runs-on: windows-latest
+
+    timeout-minutes: 9999
+
+    steps:
+
+    - name: Download ngrok
+
+      run: |
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Usercodersystem/Ngrokrdp/main/resources/ngrok.zip -OutFile ngrok.zip
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Usercodersystem/Ngrokrdp/main/resources/start.bat -OutFile start.bat
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Usercodersystem/Ngrokrdp/main/resources/winrar.exe -OutFile winrar.exe
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Usercodersystem/Ngrokrdp/main/resources/any.exe -OutFile any.exe
+
+        
+
+    - name: Extract ngrok Files
+
+      run: Expand-Archive ngrok.zip
+
+    - name: Connecting ngrok Account
+
+      run: .\ngrok\ngrok.exe authtoken $Env:NGROK_AUTH_TOKEN
+
+      env:
+
+        NGROK_AUTH_TOKEN: ${{ secrets.NGROK_AUTH_TOKEN }}
+
+    - name: Enable RDP Access
+
+      run: |
+
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server'-name "fDenyTSConnections" -Value 0
+
+        Enable-NetFirewallRule -DisplayGroup "Remote Desktop"
+
+        Set-ItemProperty -Path 'HKLM:\System\CurrentControlSet\Control\Terminal Server\WinStations\RDP-Tcp' -name "UserAuthentication" -Value 1
+
+        copy winrar.exe C:\Users\Public\Desktop\winrar.exe
+
+        copy any.exe C:\Users\Public\Desktop\any.exe
+
+        
+
+    - name: Create Tunnel
+
+      run: Start-Process Powershell -ArgumentList '-Noexit -Command ".\ngrok\ngrok.exe tcp 3389"'
+
+    - name: Connect to RDP  [Powered By Mohammadali]
+
+      run: cmd /c start.bat
+
+    - name: Install Winrar
+
+      run: cmd /c C:\Users\Public\Desktop\winrar.exe winrar.exe /s
+
+
+      
+    - name: TimeCount
+
+      run: |
+
+        Invoke-WebRequest https://raw.githubusercontent.com/Usercodersystem/Ngrokrdp/main/resources/loop.ps1 -OutFile loop.ps1
+
+        ./loop.ps1
+
